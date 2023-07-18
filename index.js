@@ -12,7 +12,8 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", async(req, res) => {
+  await connection
   res.send("Server running");
 });
 
