@@ -12,8 +12,17 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 
+const connectDB = async () => {
+  try {
+    const conn = await connection;
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
+
 app.get("/", async(req, res) => {
-  await connection
   res.send("Server running");
 });
 
@@ -21,12 +30,24 @@ app.use("", userRouter);
 app.use(authentication);
 app.use("", empRouter);
 
-app.listen(port, async () => {
-  try {
-    await connection;
-    console.log("Connected to DB");
-  } catch (error) {
-    console.log(error);
-  }
-  console.log(`Server is running at the port: ${port}`);
+// To handle not registered routes
+app.all('*', (req, res) => {
+  res.status(404).send('404 - Page Not Found');
 });
+
+//Connect to the database before listening
+connectDB().then(() => {
+    app.listen(port, () => {
+        console.log(`Server is running at the port: ${port}`);
+    })
+})
+
+// app.listen(port, async () => {
+//   try {
+//     await connection;
+//     console.log("Connected to DB");
+//   } catch (error) {
+//     console.log(error);
+//   }
+//   console.log(`Server is running at the port: ${port}`);
+// });
